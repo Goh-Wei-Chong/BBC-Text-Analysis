@@ -22,6 +22,8 @@ A Jupyter Notebook project that explores BBC news articles and predicts their ne
 
 The included CSV matches the notebook's expected filename, column names, saved row count, category totals, and first five displayed articles in order. The full first article also matches the notebook's saved output exactly. The file is preserved unchanged, including 99 duplicate rows, and has no missing category or text values.
 
+The original [`stopwords.txt`](stopwords.txt) is also included unchanged. It contains 429 nonblank lines and 423 unique stop words. These two files are the notebook's only input files. `bbc-text_export.csv` is generated during execution and is excluded from Git.
+
 ## Analysis workflow
 
 1. **Preprocess the text:** convert articles to lowercase and use regular expressions to remove tags, digits, and non-word characters. Load a custom stop-word list from `stopwords.txt` for feature extraction.
@@ -30,20 +32,20 @@ The included CSV matches the notebook's expected filename, column names, saved r
 4. **Explore each category:** display keyword frequency charts and word clouds, then use Apriori and association rules to examine keywords that occur together, with support, confidence, and lift measures.
 5. **Classify articles:** compare Logistic Regression, Decision Tree, and Random Forest classifiers using both feature representations, 70/30 train/test splits, 20-fold cross-validation, and grid search.
 
-## Saved results
+## Verified results
 
-These accuracy scores come from the notebook's saved outputs. They have **not been reproduced in a fresh run**.
+These accuracy scores were reproduced by executing all **98 nonempty code cells** in a fresh Python 3.13.0 environment on macOS with the pinned requirements. Verification also checked all **20 figures** and the **2,225-row keyword export**. The notebook contains the refreshed outputs. Scores are rounded to one decimal percentage point.
 
 | Classifier | Features | Best cross-validation accuracy | Test accuracy |
 | --- | --- | ---: | ---: |
-| Logistic Regression | Bag of Words | 97.2% | 98.2% |
+| Logistic Regression | Bag of Words | 97.5% | 97.9% |
 | Logistic Regression | TF-IDF | 97.4% | 98.1% |
-| Decision Tree | Bag of Words | 84.5% | 85.0% |
-| Decision Tree | TF-IDF | 84.4% | 85.6% |
-| Random Forest | Bag of Words | 96.1% | 97.5% |
-| Random Forest | TF-IDF | 96.2% | 96.3% |
+| Decision Tree | Bag of Words | 83.9% | 85.0% |
+| Decision Tree | TF-IDF | 84.3% | 85.6% |
+| Random Forest | Bag of Words | 95.7% | 97.3% |
+| Random Forest | TF-IDF | 96.3% | 97.2% |
 
-Logistic Regression achieved the highest saved test accuracy, at 98.2% with Bag of Words features. See the evaluation limitations below when interpreting these results.
+Logistic Regression achieved the highest test accuracy in this run, at **98.1% with TF-IDF features**. The updated libraries, corrected Random Forest grid, and fixed random seeds mean some results differ from the original assignment outputs. See the evaluation limitations below when interpreting these results.
 
 ## Open the notebook
 
@@ -52,41 +54,51 @@ On macOS or Linux, clone the repository and launch Jupyter from its root directo
 ```bash
 git clone https://github.com/Goh-Wei-Chong/BBC-Text-Analysis.git
 cd BBC-Text-Analysis
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
-python -m pip install notebook
+python -m pip install -r requirements.txt
 python -m notebook AA_Assignment.ipynb
 ```
 
-Use `python3` to create the environment. After activation, `python` refers to the environment's interpreter. On Windows, create the environment with `py -m venv .venv` and activate it with `.venv\Scripts\activate` instead. The saved notebook outputs can also be viewed directly on GitHub.
+Use **Python 3.13**, the version used for verification. After activation, `python` refers to the environment's interpreter. If `python3 --version` already reports 3.13, you can also use `python3` in the environment creation command. On Windows, create the environment with `py -3.13 -m venv .venv` and activate it with `.venv\Scripts\activate` instead. The saved notebook outputs can also be viewed directly on GitHub.
 
-### Requirements for executing the analysis
-
-The notebook imports NumPy, pandas, scikit-learn, Matplotlib, WordCloud, mlxtend, and NLTK:
+Install dependencies once per virtual environment, and rerun the installation command when `requirements.txt` changes. On subsequent visits, only activate the environment and open the notebook:
 
 ```bash
-python -m pip install numpy pandas scikit-learn matplotlib wordcloud mlxtend nltk
+source .venv/bin/activate
+python -m notebook AA_Assignment.ipynb
 ```
 
-The original notebook records **Python 3.8.8**, but its package versions were not pinned. The command above lists its dependencies; executing all cells also requires the following preparation:
+If you already cloned an older version, run `git pull` from your clone and install the updated requirements before opening the notebook. Select the Python kernel from `.venv`, then choose **Restart Kernel and Run All Cells** to reproduce the analysis.
 
-- Place the original `stopwords.txt` beside the notebook, with one stop word per line. This file is not currently included, so the original preprocessing cannot yet be reproduced exactly.
-- Use a compatible legacy environment or update legacy APIs for current library versions, including `get_feature_names()` (see [`get_feature_names_out()`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html#sklearn.feature_extraction.text.CountVectorizer.get_feature_names_out)) and `Series.append()` (see the [pandas removal notes](https://pandas.pydata.org/docs/whatsnew/v2.0.0.html#removal-of-prior-version-deprecations-changes)).
-- For current scikit-learn, convert the custom stop-word collection from a `frozenset` to a list before passing it to [`CountVectorizer`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html).
-- Correct the Random Forest grid before running it on current scikit-learn: [`bootstrap` requires boolean values](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html), while the original grid supplies numbers.
+### Dependencies and compatibility
 
-These are known compatibility issues; additional updates may be needed with current packages. A fresh end-to-end run has not been verified. Execute cells in order when rerunning the analysis. The grid searches use 20 folds and may take some time. The keyword export is generated during execution and is not an input file.
+[`requirements.txt`](requirements.txt) pins the tested versions of NumPy, pandas, SciPy, scikit-learn, Matplotlib, WordCloud, mlxtend, NLTK, and the Jupyter tools. The notebook imports NLTK but does not use an NLTK corpus, so no separate corpus downloads are required.
+
+The assignment originally used Python 3.8.8. The notebook now uses current feature-name and pandas APIs, a list of stop words accepted by scikit-learn, and boolean values for Random Forest's `bootstrap` grid. Classification keeps sparse features to reduce memory, models and word clouds use fixed random seeds, and word clouds use actual keyword frequencies.
+
+### Verify a full run
+
+```bash
+python scripts/verify_notebook.py
+```
+
+This executes every nonempty code cell in a fresh kernel using the active Python interpreter, including the full 20-fold cross-validation and grid searches. It validates the inputs, generated export, and six model test scores, then saves the refreshed notebook outputs. A detailed local report is written to `.verification/report.json`. Runtime caches, failure diagnostics, and the generated CSV are ignored by Git. Each cell has a default timeout of 1,800 seconds; use `--timeout` to change it.
 
 ## Evaluation limitations
 
 - The vocabulary and TF-IDF weights are fitted on all articles before the train/test split and cross-validation. This introduces data leakage and can make the saved accuracy estimates optimistic. A future evaluation should fit these steps inside a training pipeline.
-- Bag of Words and TF-IDF use different train/test split seeds, and the Decision Tree and Random Forest models do not fix their random seeds. The scores therefore do not represent a fully controlled comparison.
+- Bag of Words and TF-IDF retain the assignment's different train/test split seeds. Although model randomness is now fixed, these scores still do not represent a comparison on identical test articles.
 - Duplicate articles remain in the source data and can appear across evaluation splits. Very low Apriori support thresholds can also produce rules supported by only a few articles, so those associations are exploratory.
 
 ## Repository files
 
 | File | Purpose |
 | --- | --- |
-| [`AA_Assignment.ipynb`](AA_Assignment.ipynb) | Original analysis, visualizations, model code, and saved outputs. |
+| [`AA_Assignment.ipynb`](AA_Assignment.ipynb) | Updated assignment analysis, visualizations, model code, and saved outputs. |
 | [`bbc-text.csv`](bbc-text.csv) | Verified source dataset loaded by the notebook. |
+| [`stopwords.txt`](stopwords.txt) | Original custom stop-word list used during feature extraction. |
+| [`requirements.txt`](requirements.txt) | Pinned analysis and Jupyter dependencies. |
+| [`scripts/verify_notebook.py`](scripts/verify_notebook.py) | Runs the complete notebook and checks its outputs. |
+| [`.gitignore`](.gitignore) | Excludes the virtual environment, caches, and generated data. |
 | [`README.md`](README.md) | Project overview, dataset details, results, and execution notes. |
