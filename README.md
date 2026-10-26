@@ -47,18 +47,18 @@ Logistic Regression achieved the highest saved test accuracy, at 98.2% with Bag 
 
 ## Open the notebook
 
-Clone the repository and launch Jupyter from its root directory so the relative dataset path resolves correctly:
+On macOS or Linux, clone the repository and launch Jupyter from its root directory so the relative dataset path resolves correctly:
 
 ```bash
 git clone https://github.com/Goh-Wei-Chong/BBC-Text-Analysis.git
 cd BBC-Text-Analysis
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install notebook
 python -m notebook AA_Assignment.ipynb
 ```
 
-On Windows, activate the environment with `.venv\Scripts\activate` instead. The saved notebook outputs can also be viewed directly on GitHub.
+Use `python3` to create the environment. After activation, `python` refers to the environment's interpreter. On Windows, create the environment with `py -m venv .venv` and activate it with `.venv\Scripts\activate` instead. The saved notebook outputs can also be viewed directly on GitHub.
 
 ### Requirements for executing the analysis
 
