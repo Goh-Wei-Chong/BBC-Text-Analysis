@@ -91,14 +91,3 @@ This executes every nonempty code cell in a fresh kernel using the active Python
 - Bag of Words and TF-IDF retain the assignment's different train/test split seeds. Although model randomness is now fixed, these scores still do not represent a comparison on identical test articles.
 - Duplicate articles remain in the source data and can appear across evaluation splits. Very low Apriori support thresholds can also produce rules supported by only a few articles, so those associations are exploratory.
 
-## Repository files
-
-| File | Purpose |
-| --- | --- |
-| [`AA_Assignment.ipynb`](AA_Assignment.ipynb) | Updated assignment analysis, visualizations, model code, and saved outputs. |
-| [`bbc-text.csv`](bbc-text.csv) | Verified source dataset loaded by the notebook. |
-| [`stopwords.txt`](stopwords.txt) | Original custom stop-word list used during feature extraction. |
-| [`requirements.txt`](requirements.txt) | Pinned analysis and Jupyter dependencies. |
-| [`scripts/verify_notebook.py`](scripts/verify_notebook.py) | Runs the complete notebook and checks its outputs. |
-| [`.gitignore`](.gitignore) | Excludes the virtual environment, caches, and generated data. |
-| [`README.md`](README.md) | Project overview, dataset details, results, and execution notes. |
